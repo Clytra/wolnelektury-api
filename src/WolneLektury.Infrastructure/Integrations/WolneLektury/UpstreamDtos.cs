@@ -2,13 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace WolneLektury.Infrastructure.Integrations.WolneLektury;
 
-public abstract record UpstreamAuthorDto(
+public record UpstreamAuthorDto(
     [property: JsonPropertyName("slug")] string Slug,
     [property: JsonPropertyName("name")] string Name,
     [property: JsonPropertyName("url")] string? Url = null,
     [property: JsonPropertyName("href")] string? Href = null);
 
-public abstract record UpstreamBookDto(
+public record UpstreamBookDto(
     [property: JsonPropertyName("title")] string Title,
     [property: JsonPropertyName("slug")] string? Slug = null,
     [property: JsonPropertyName("url")] string? Url = null,
@@ -20,7 +20,7 @@ public abstract record UpstreamBookDto(
     [property: JsonPropertyName("genre")] string? Genre = null,
     [property: JsonPropertyName("epoch")] string? Epoch = null);
 
-public abstract record UpstreamAuthorRef(
+public record UpstreamAuthorRef(
     [property: JsonPropertyName("slug")] string? Slug,
     [property: JsonPropertyName("name")] string? Name,
     [property: JsonPropertyName("href")] string? Href);
