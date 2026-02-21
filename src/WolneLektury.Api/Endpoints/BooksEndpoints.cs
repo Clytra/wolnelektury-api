@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using WolneLektury.Api.Common;
+using WolneLektury.Api.Extensions;
 using WolneLektury.Application.Books.Dtos;
 using WolneLektury.Application.Books.Queries;
 using WolneLektury.Application.Common.Pagination;
@@ -60,10 +61,7 @@ public static class BooksEndpoints
         group.MapGet("/books/{slug}", async (string slug, [FromServices] IWolneLekturyClient client) =>
             {
                 var book = await client.GetBookAsync(slug);
-                if (book is null)
-                    return Results.Problem(statusCode: 404, title: "Not Found", detail: $"Book '{slug}' not found.");
-
-                return Results.Ok(book);
+                return book is null ? Results.Problem(ProblemDetailsHelpers.NotFound("Book", slug)) : Results.Ok(book);
             })
             .WithName("GetBookBySlug")
             .Produces<BookDto>(StatusCodes.Status200OK)
