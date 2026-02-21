@@ -8,4 +8,7 @@ public record BookDto(
     string? Description,
     string? Url,
     string? Thumbnail,
-    IReadOnlyList<AuthorDto> Authors);
+    IReadOnlyList<AuthorDto> Authors,
+    string? Kind = null,
+    string? Genre = null,
+    string? Epoch = null);
