@@ -10,7 +10,7 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-app.UseGlobalExceptionHandling(app.Environment);
+app.UseGlobalExceptionHandling();
 app.UseSwaggerDocsIfDevelopment();
 
 app.MapHealthEndpoints();
