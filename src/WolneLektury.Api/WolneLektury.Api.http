@@ -1,6 +1,42 @@
-@WolneLektury.Api_HostAddress = http://localhost:5046
+@baseUrl = https://localhost:44347
 
-GET {{WolneLektury.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Health
+GET {{baseUrl}}/health
 
-###
+### --- Books ---
+
+### Lista książek (domyślna paginacja)
+GET {{baseUrl}}/api/books
+
+### Lista książek (paginacja + filtry + sortowanie)
+GET {{baseUrl}}/api/books?page=1&pageSize=20&kind=epika&genre=powiesc&epoch=romantyzm&sortBy=Title&sortDir=asc
+
+### Lista książek (sortowanie po autorze, malejąco)
+GET {{baseUrl}}/api/books?page=1&pageSize=10&sortBy=AuthorName&sortDir=desc
+
+### Nieprawidłowa paginacja (page < 1) → 400
+GET {{baseUrl}}/api/books?page=0&pageSize=20
+
+### Nieprawidłowa paginacja (pageSize > 100) → 400
+GET {{baseUrl}}/api/books?page=1&pageSize=200
+
+### Książka po slug
+GET {{baseUrl}}/api/books/pan-tadeusz
+
+### --- Authors ---
+
+### Lista autorów (domyślna paginacja)
+GET {{baseUrl}}/api/authors
+
+### Lista autorów (paginacja + sortowanie)
+GET {{baseUrl}}/api/authors?page=1&pageSize=20&sortBy=Name&sortDir=asc
+
+### Lista autorów (sortowanie malejąco)
+GET {{baseUrl}}/api/authors?sortBy=Name&sortDir=desc
+
+### Książki autora po slug
+GET {{baseUrl}}/api/authors/adam-mickiewicz/books
+
+### Książki autora (z paginacją i sortowaniem)
+GET {{baseUrl}}/api/authors/adam-mickiewicz/books?page=1&pageSize=10&sortBy=Title&sortDir=asc
+
