@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using WolneLektury.Api.Common;
 using WolneLektury.Application.Books.Dtos;
 using WolneLektury.Application.Books.Queries;
 using WolneLektury.Application.Common.Pagination;
+using WolneLektury.Application.Integrations;
 
 namespace WolneLektury.Api.Endpoints;
 
@@ -13,34 +15,32 @@ public static class BooksEndpoints
         var group = app.MapGroup("/api")
             .WithTags("Books");
 
-        group.MapGet("/books", (
+        group.MapGet("/books", async (
                 int? page,
                 int? pageSize,
                 string? kind,
                 string? genre,
                 string? epoch,
                 string? sortBy,
-                string? sortDir) =>
+                string? sortDir,
+                [FromServices] IWolneLekturyClient client) =>
             {
                 var (p, ps) = PaginationValidation.ApplyDefaults(page, pageSize);
                 var problem = PaginationValidation.Validate(p, ps);
                 if (problem is not null)
                     return Results.Problem(problem);
 
-                var _ = new BookListQuery(
-                    new PaginationParams(p, ps),
-                    kind,
-                    genre,
-                    epoch,
-                    SortParsing.ParseBookSortBy(sortBy),
-                    SortParsing.ParseSortDirection(sortDir));
+                var sort = SortParsing.ParseBookSortBy(sortBy);
+                var sortDirEnum = SortParsing.ParseSortDirection(sortDir);
 
-                var response = new PagedResponse<BookDto>([], p, ps, Total: 0, HasNext: false);
-                return Results.Json(response, statusCode: StatusCodes.Status501NotImplemented);
+                var all = await client.GetBooksAsync();
+                var filteredSorted = BookListFilterSort.Apply(all, kind, genre, epoch, sort, sortDirEnum);
+                var response = ListPagination.Page(filteredSorted, p, ps);
+
+                return Results.Ok(response);
             })
             .WithName("GetBooks")
             .Produces<PagedResponse<BookDto>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status501NotImplemented)
             .ProducesProblem(StatusCodes.Status400BadRequest, contentType: "application/problem+json")
             .ProducesProblem(StatusCodes.Status500InternalServerError, contentType: "application/problem+json")
             .WithSummary("List books")
@@ -57,15 +57,11 @@ public static class BooksEndpoints
                 return op;
             });
 
-        group.MapGet("/books/{slug}", (string slug) =>
+        group.MapGet("/books/{slug}", async (string slug, [FromServices] IWolneLekturyClient client) =>
             {
-                var book = new BookDto(
-                    Slug: slug,
-                    Title: "Sample",
-                    Description: null,
-                    Url: null,
-                    Thumbnail: null,
-                    Authors: []);
+                var book = await client.GetBookAsync(slug);
+                if (book is null)
+                    return Results.Problem(statusCode: 404, title: "Not Found", detail: $"Book '{slug}' not found.");
 
                 return Results.Ok(book);
             })

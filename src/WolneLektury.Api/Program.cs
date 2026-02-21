@@ -1,8 +1,10 @@
 using WolneLektury.Api.Endpoints;
 using WolneLektury.Api.Extensions;
+using WolneLektury.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddWolneLekturyClient();
 builder.Services.AddSwaggerDocs();
 builder.Services.AddHealthChecks();
 
